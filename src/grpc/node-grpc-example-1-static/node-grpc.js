@@ -1,58 +1,41 @@
-const grpc = require('@grpc/grpc-js');
-const loader = require('@grpc/proto-loader');
+const fs = require("fs");
 
-const packageDefinition = loader.loadSync('api.proto', {
-  keepCase: true,
-  longs: String,
-  enums: String,
-  defaults: true,
-  oneofs: true,
-});
+const messages = require("./api_pb");
+// console.log({messages});
 
-const myapp = grpc.loadPackageDefinition(packageDefinition).myapp;
-const server = new grpc.Server();
+const services = require("./api_grpc_pb");
+// console.log({services});
 
-const endpoints = [
-  'GET /api',
-  'GET /api/greet',
-  'PUT /api/greet',
-  'GET /api/users',
-  'POST /api/users',
-];
-let greetings = 'Hello, this is a GRPC API!';
-let users = [];
+const grpc = require("@grpc/grpc-js");
 
-// gRPC Service Implementation
-server.addService(myapp.APIService.service, {
-  GetEndpoints: (_, callback) => {
-    callback(null, { endpoints });
-  },
-  GetGreet: (_, callback) => {
-    callback(null, { message: greetings });
-  },
-  UpdateGreet: (req, callback) => {
-    const { message } = req;
-    greetings = message;
-    callback(null, { message: greetings });
-  },
-  CreateOrUpdateUser: (req, callback) => {
-    const { username, email } = req;
-    users.push({ username, email });
-    callback(null, {
-      message: `User ${username} <${email}> created successfully!\nTotal users: ${users.length}`,
-    });
-  },
-  GetUsers: (_, callback) => {
-    callback(null, { users });
-  },
-});
+function greet({request}, callback) {
+    const reply = new messages.GreetResponse();
+    reply.setMessage("hello");
+    callback(null, reply);
+}
 
-server.bindAsync('localhost:50051', grpc.ServerCredentials.createInsecure(), (error) => {
-    if (error) {
-        console.error(error);
-        return;
+function getSupportedEndpoints({request}, callback) {
+    const reply = new messages.EndpointsResponse();
+    try {
+        const endpoint_data = JSON.parse(fs.readFileSync("./data/endpoints.json").toString());
+        console.log({endpoint_data});
+        reply.setEndpointsList(endpoint_data);
+    } catch (e) {
+        console.error(e);
+    } finally {
+        callback(null, reply);
     }
+}
+
+const server = new grpc.Server;
+server.addService(services.APIServiceService, {
+    getGreet: greet,
+    getEndpoints: getSupportedEndpoints
+});
+server.bindAsync("localhost:50052", grpc.ServerCredentials.createInsecure(), (error) => {
+    if (error) {
+        console.error("Cannot run server on port 50052.", error.message);
+    }
+    console.log("starting server on localhost:50052");
     server.start();
 });
-
-console.log('gRPC server running on port 50051');

@@ -1,0 +1,7 @@
+[
+    "GET /api",
+    "GET /api/greet",
+    "PUT /api/greet",
+    "GET /api/users",
+    "POST /api/users"
+]

@@ -32,6 +32,6 @@ You should join if you could answer yes to any of the problems below
 
 --------------------------------------------------------------------------------------------------------------
 
-### 2023.10.20 - Weekly catchup
+[] 2023.10.20 - Weekly catchup
 
 

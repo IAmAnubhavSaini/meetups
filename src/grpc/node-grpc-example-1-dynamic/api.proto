@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package myapp;
+
+service APIService {
+  rpc GetEndpoints (Empty) returns (EndpointsResponse);
+  rpc GetGreet (Empty) returns (GreetResponse);
+  rpc UpdateGreet (UpdateGreetRequest) returns (GreetResponse);
+  rpc CreateOrUpdateUser (UserRequest) returns (UserResponse);
+  rpc GetUsers (Empty) returns (UsersResponse);
+}
+
+message Empty {}
+
+message EndpointsResponse {
+  repeated string endpoints = 1;
+}
+
+message GreetResponse {
+  string message = 1;
+}
+
+message UpdateGreetRequest {
+  string message = 1;
+}
+
+message UserRequest {
+  string username = 1;
+  string email = 2;
+}
+
+message UserResponse {
+  string message = 1;
+}
+
+message UsersResponse {
+  repeated User users = 1;
+}
+
+message User {
+  string username = 1;
+  string email = 2;
+}
